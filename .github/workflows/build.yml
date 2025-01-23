@@ -26,6 +26,10 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      BUILDTIME: ${{ github.event.head_commit.timestamp }}
+      DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
+      DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
     strategy:
       matrix:
         jobs:
@@ -99,6 +103,8 @@ jobs:
           - { goos: linux, goarch: '386', output: '386-go120', goversion: '1.20' }
           - { goos: linux, goarch: amd64, goamd64: v1, output: amd64-compatible-go120, goversion: '1.20', test: test }
           - { goos: linux, goarch: amd64, goamd64: v3, output: amd64-go120, goversion: '1.20' }
+
+          - { goos: darwin, goarch: arm64, tags: ios, output: ios-arm64, cgo: 1 }
 
     steps:
     - uses: actions/checkout@v4
@@ -309,6 +315,14 @@ jobs:
           mihomo*.rpm
           mihomo*.zip
           version.txt
+
+    - name: Build iOS
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 \
+        go build -tags ios -trimpath -ldflags "-X 'github.com/metacubex/mihomo.Version=${{ github.ref_name }}' \
+        -X 'github.com/metacubex/mihomo.BuildTime=${{ env.BUILDTIME }}'" \
+        -o mihomo-ios
 
   Upload-Prerelease:
     permissions: write-all

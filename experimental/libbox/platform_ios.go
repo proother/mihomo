@@ -4,13 +4,18 @@ package libbox
 
 /*
 #cgo CFLAGS: -x objective-c
-#cgo LDFLAGS: -framework Foundation -framework NetworkExtension -framework SystemConfiguration
+#cgo LDFLAGS: -framework Foundation
+#import <Foundation/Foundation.h>
 
-#include "platform_ios.h"
+const char* getHomeDirectory() {
+	NSString *path = NSHomeDirectory();
+	return [path UTF8String];
+}
 */
 import "C"
 import (
 	"fmt"
+	"path/filepath"
 	"unsafe"
 )
 
@@ -113,4 +118,13 @@ func setSystemProxy(host string, port int) error {
 		}
 	}
 	return nil
+}
+
+func GetHomeDir() string {
+	cstr := C.getHomeDirectory()
+	return C.GoString(cstr)
+}
+
+func GetConfigDir() string {
+	return filepath.Join(GetHomeDir(), "Documents")
 }

@@ -1,0 +1,12 @@
+buildFlags:
+  - "-tags=ios,cgo"
+  - "-ldflags=-w -s"
+  - "-trimpath"
+env:
+  CGO_ENABLED: "1"
+  GOOS: "darwin"
+  GOARCH: "arm64"
+  CC: "xcrun --sdk iphoneos --find clang"
+  CXX: "xcrun --sdk iphoneos --find clang++"
+  CFLAGS: "-arch arm64 -isysroot $(xcrun --sdk iphoneos --show-sdk-path) -mios-version-min=12.0"
+  LDFLAGS: "-arch arm64 -isysroot $(xcrun --sdk iphoneos --show-sdk-path)" 
